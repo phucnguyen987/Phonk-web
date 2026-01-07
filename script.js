@@ -10,8 +10,8 @@ let isLooping = false;
 
 // ĐÂY LÀ CHỖ BẠN CẦN THAY ĐỔI
 // Hãy thay 'TEN_CUA_BAN' và 'TEN_KHO_NHAC' bằng tên thật trên GitHub của bạn
-const YOUR_GITHUB_USER = 'TEN_CUA_BAN'; 
-const YOUR_REPO_NAME = 'TEN_KHO_NHAC';
+const YOUR_GITHUB_USER = 'phucnguyen987'; 
+const YOUR_REPO_NAME = 'Phonk-web';
 
 async function autoLoadFromGitHub() {
     status.innerText = "📡 Đang quét nhạc từ GitHub...";
