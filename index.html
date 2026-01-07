@@ -6,52 +6,32 @@
     <title>PHONK SYSTEM PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 </head>
 <body>
     <div id="intro-page">
         <div class="intro-content">
             <h1 class="glitch">☣️ PHONK SYSTEM ☣️</h1>
-            <p>500+ TRACKS | HIGH BASS ONLY</p>
+            <p>AUTO SYSTEM | HIGH BASS ONLY</p>
             <button class="start-btn" onclick="startApp()">VÀO HỆ THỐNG</button>
         </div>
     </div>
 
     <div class="container">
-        <h2 class="neon-text">SYSTEM ACTIVE</h2>
+        <h2 class="neon-text">PLAYER CONTROL</h2>
+        <div id="status">Chờ xác nhận...</div>
         
-        <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
-
-        <div id="customPlaylist" class="playlist-container">
-            <div style="padding:20px; color:#555;">Đang nạp danh sách...</div>
-        </div>
-
         <div class="controls">
-            <button class="btn-main" onclick="handlePlay()" id="playBtn">PHÁT NHẠC</button>
-            <button class="btn-loop" onclick="handleLoop()" id="loopBtn">LẶP: TẮT</button>
+            <button id="playBtn" onclick="handlePlay()">PHÁT NHẠC</button>
+            <button id="loopBtn" onclick="handleLoop()">LẶP: TẮT</button>
         </div>
 
-        <div id="status">Sẵn sàng quẩy...</div>
+        <input type="text" id="searchInput" placeholder="Tìm tên bài hát..." oninput="filterSongs()">
+        
+        <div id="customPlaylist" class="playlist">
+            </div>
     </div>
 
-    <audio id="mainAudio" playsinline></audio>
-    <script src="script.js"></script>
-</body><body>
-    <div id="intro-page">
-        <div class="intro-content">
-            <h1 class="glitch">☣️ PHONK SYSTEM ☣️</h1>
-            <p>500+ TRACKS | HIGH BASS ONLY</p>
-            <button class="start-btn" onclick="startApp()">VÀO HỆ THỐNG</button>
-        </div>
-    </div>
-
-    <div class="container">
-        </div>
-    
+    <audio id="mainAudio"></audio>
     <script src="script.js"></script>
 </body>
-
 </html>
