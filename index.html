@@ -3,53 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHONK SYSTEM ULTIMATE</title>
+    <title>PHONK SYSTEM PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 </head>
 <body>
     <div id="intro-page">
         <div class="intro-content">
-            <h1 class="glitch">☣️ PHONK SYSTEM ☣️</h1>
+            <h1 class="glitch">☣️ PHUCNGUYEN X PHONK ☣️</h1>
+            <p>HƠN 50 BÀI HAY NHẤT 2026 | VÀ HOẠT ĐỘNG 24/7</p>
             <button class="start-btn" onclick="startApp()">VÀO HỆ THỐNG</button>
         </div>
     </div>
 
     <div class="container">
-        <div class="album-art-container">
-            <img id="albumArt" src="https://cdn-icons-png.flaticon.com/512/3659/3659784.png" alt="Cover">
-        </div>
-
-        <h2 id="currentTitle" class="neon-text">Sẵn sàng quẩy</h2>
-        <div id="status">Chờ chọn nhạc...</div>
-
-        <div class="seek-container">
-            <input type="range" id="seekSlider" value="0" step="1" onchange="seekTo()">
-            <div class="time-info">
-                <span id="currentTime">0:00</span>
-                <span id="durationTime">0:00</span>
-            </div>
-        </div>
+        <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
-        <div class="controls">
-            <button id="playBtn" onclick="handlePlay()">PHÁT</button>
-            <button onclick="toggleMenu()">CHỌN NHẠC</button>
+        <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
+
+        <div id="customPlaylist" class="playlist-container">
+            <div style="padding:20px; color:#555;">Đang nạp danh sách...</div>
         </div>
 
-        <div id="menuOverlay" class="menu-overlay">
-            <div class="menu-content">
-                <div class="menu-header">
-                    <h3>DANH SÁCH NHẠC</h3>
-                    <button class="close-btn" onclick="toggleMenu()">ĐÓNG</button>
-                </div>
-                <input type="text" id="searchInput" placeholder="Tìm kiếm..." oninput="filterSongs()">
-                <div id="customPlaylist" class="playlist"></div>
-            </div>
+        <div class="controls">
+            <button class="btn-main" onclick="handlePlay()" id="playBtn">PHÁT NHẠC</button>
+            <button class="btn-loop" onclick="handleLoop()" id="loopBtn">LẶP: TẮT</button>
         </div>
+
+        <div id="status">Sẵn sàng quẩy...</div>
     </div>
 
-    <audio id="mainAudio"></audio>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <audio id="mainAudio" playsinline></audio>
     <script src="script.js"></script>
 </body>
 </html>
