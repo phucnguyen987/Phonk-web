@@ -1,27 +1,86 @@
-body { background: #000; color: #fff; font-family: sans-serif; margin: 0; }
-
-/* Màn hình Intro */
-#intro-page {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; z-index: 9999; display: flex;
-    justify-content: center; align-items: center; text-align: center;
+/* Tông màu Đen - Đỏ cực ngầu */
+body {
+    background: #050505;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
 }
-.glitch { color: #ff0000; font-size: 3rem; text-shadow: 2px 2px #550000; }
-.start-btn {
-    background: #ff0000; color: #fff; border: none; padding: 15px 30px;
-    font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 5px;
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    background: #0a0a0a;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid #333;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.15);
 }
 
-/* Giao diện chính */
-.container { padding: 20px; max-width: 500px; margin: auto; }
-.neon-text { color: #ff0000; text-align: center; }
-#status { text-align: center; margin-bottom: 20px; color: #aaa; }
-.controls { display: flex; gap: 10px; margin-bottom: 20px; }
-button { flex: 1; padding: 10px; background: #222; color: #fff; border: 1px solid #ff0000; cursor: pointer; }
+.neon-text {
+    color: #ff0000;
+    text-shadow: 0 0 15px #ff0000;
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-input { width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 15px; box-sizing: border-box; }
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    background: #111;
+    border: 1px solid #222;
+    color: #ff0000;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    outline: none;
+}
 
-.playlist { height: 400px; overflow-y: auto; border: 1px solid #222; }
-.song-item { padding: 12px; border-bottom: 1px solid #111; cursor: pointer; transition: 0.3s; }
-.song-item:hover { background: #1a0000; }
-.song-item.active { background: #ff0000; color: #000; font-weight: bold; }
+/* Danh sách nhạc có thể cuộn (Scroll) */
+.playlist-container {
+    height: 280px;
+    overflow-y: auto;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    background: #030303;
+    margin-bottom: 20px;
+}
+
+.song-item {
+    padding: 15px;
+    border-bottom: 1px solid #111;
+    cursor: pointer;
+    font-size: 14px;
+    color: #888;
+    transition: 0.3s;
+}
+
+.song-item:hover {
+    background: #111;
+    color: #ff0000;
+}
+
+.song-item.active {
+    background: #ff000015;
+    color: #ff0000;
+    border-left: 4px solid #ff0000;
+}
+
+/* Nút bấm */
+.controls { display: flex; gap: 10px; }
+button { flex: 1; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn-main { background: #ff0000; color: #000; }
+.btn-loop { background: transparent; border: 1px solid #ff0000; color: #ff0000; }
+button:active { transform: scale(0.95); }
+
+/* Màn hình chào */
+#intro-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; justify-content: center; align-items: center; text-align: center; }
+.start-btn { background: #ff0000; color: #000; padding: 15px 40px; font-size: 18px; margin-top: 20px; width: auto; }
+
+/* Tùy chỉnh thanh cuộn */
+.playlist-container::-webkit-scrollbar { width: 4px; }
+.playlist-container::-webkit-scrollbar-thumb { background: #ff0000; border-radius: 10px; }
