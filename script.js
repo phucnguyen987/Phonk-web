@@ -8,68 +8,75 @@ let playlist = [];
 let selectedUrl = "";
 let isLooping = false;
 
-// Tự động nạp nhạc từ playlist.txt
-async function autoLoadFromText() {
+// ĐÂY LÀ CHỖ BẠN CẦN THAY ĐỔI
+// Hãy thay 'TEN_CUA_BAN' và 'TEN_KHO_NHAC' bằng tên thật trên GitHub của bạn
+const YOUR_GITHUB_USER = 'TEN_CUA_BAN'; 
+const YOUR_REPO_NAME = 'TEN_KHO_NHAC';
+
+async function autoLoadFromGitHub() {
+    status.innerText = "📡 Đang quét nhạc từ GitHub...";
     try {
-        const response = await fetch('playlist.txt?t=' + new Date().getTime());
-        const text = await response.text();
-        playlist = text.split('\n').filter(name => name.trim().endsWith('.mp3'));
+        const repoUrl = `https://api.github.com/repos/${YOUR_GITHUB_USER}/${YOUR_REPO_NAME}/contents/music`;
+        
+        const response = await fetch(repoUrl);
+        if (!response.ok) throw new Error();
+        
+        const data = await response.json();
+        
+        // Tự động lấy các file có đuôi .mp3
+        playlist = data
+            .filter(file => file.name.toLowerCase().endsWith('.mp3'))
+            .map(file => ({
+                name: file.name,
+                download_url: file.download_url
+            }));
+            
         renderPlaylist(playlist);
+        status.innerText = `✅ Đã sẵn sàng: ${playlist.length} bài!`;
     } catch (err) {
-        status.innerText = "❌ Lỗi: Chưa chạy lệnh tạo playlist.txt";
+        status.innerText = "❌ Lỗi: Kiểm tra lại tên User hoặc Repo!";
+        console.error(err);
     }
 }
 
-// Hiển thị danh sách nhạc ra màn hình
 function renderPlaylist(list) {
     playlistDiv.innerHTML = "";
-    list.forEach((name, index) => {
+    list.forEach((file, index) => {
         const div = document.createElement('div');
         div.className = 'song-item';
-        div.innerText = `${index + 1}. ${name.trim().replace('.mp3', '')}`;
-        div.onclick = () => selectSong(div, `music/${name.trim()}`);
+        div.innerText = `${index + 1}. ${file.name.replace('.mp3', '')}`;
+        div.onclick = () => selectSong(div, file.download_url);
         playlistDiv.appendChild(div);
     });
 }
 
-// Khi người dùng nhấn chọn một bài
 function selectSong(element, url) {
     document.querySelectorAll('.song-item').forEach(i => i.classList.remove('active'));
     element.classList.add('active');
     selectedUrl = url;
-    
-    // Tự động phát khi chọn bài
     audio.src = url;
     audio.play();
     playBtn.innerText = "TẠM DỪNG";
-    status.innerText = "🔥 Đang phát: " + element.innerText;
+    status.innerText = "🔥 Đang nổ loa: " + element.innerText;
 }
 
-// Điều khiển Phát/Dừng
 function handlePlay() {
-    if (!selectedUrl) return alert("Hãy chọn một bài nhạc trước!");
-    
+    if (!selectedUrl) return alert("Chọn nhạc đã bro!");
     if (audio.paused) {
         audio.play();
         playBtn.innerText = "TẠM DỪNG";
-        status.innerText = "🔥 Tiếp tục quẩy...";
     } else {
         audio.pause();
         playBtn.innerText = "PHÁT NHẠC";
-        status.innerText = "⏸️ Đã tạm dừng.";
     }
 }
 
-// Bật/Tắt lặp lại
 function handleLoop() {
     isLooping = !isLooping;
     audio.loop = isLooping;
     loopBtn.innerText = isLooping ? "LẶP: BẬT" : "LẶP: TẮT";
-    loopBtn.style.background = isLooping ? "#ff0000" : "transparent";
-    loopBtn.style.color = isLooping ? "#000" : "#ff0000";
 }
 
-// Tìm kiếm bài hát
 function filterSongs() {
     const term = document.getElementById('searchInput').value.toLowerCase();
     const items = document.querySelectorAll('.song-item');
@@ -78,26 +85,19 @@ function filterSongs() {
     });
 }
 
-// Khi nhấn "VÀO HỆ THỐNG"
 function startApp() {
     document.getElementById('intro-page').style.display = 'none';
-    autoLoadFromText();
-    // Khởi tạo audio context để fix lỗi loa trên mobile
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    autoLoadFromGitHub();
 }
 
-// Tự động chuyển bài khi hết
 audio.onended = function() {
     if (!isLooping) {
-        // Tìm bài tiếp theo trong danh sách
         let items = document.querySelectorAll('.song-item');
         let currentIndex = -1;
         items.forEach((item, index) => {
             if (item.classList.contains('active')) currentIndex = index;
         });
-        
         let nextIndex = (currentIndex + 1) % items.length;
-        items[nextIndex].click(); // Giả lập click vào bài tiếp theo
+        items[nextIndex].click();
     }
 };
