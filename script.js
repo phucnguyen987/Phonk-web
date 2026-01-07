@@ -9,8 +9,8 @@ let selectedUrl = "";
 let isLooping = false;
 
 // THAY THÔNG TIN CỦA BẠN VÀO ĐÂY
-const YOUR_GITHUB_USER = 'TEN_USER_CUA_BAN'; 
-const YOUR_REPO_NAME = 'TEN_REPO_CUA_BAN';
+const YOUR_GITHUB_USER = 'phucnguyen987'; 
+const YOUR_REPO_NAME = 'Phonk-web';
 
 async function autoLoadFromGitHub() {
     status.innerText = "📡 Đang lấy nhạc từ GitHub...";
