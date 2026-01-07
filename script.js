@@ -86,8 +86,11 @@ function filterSongs() {
 }
 
 function startApp() {
+    // Ẩn màn hình chào
     document.getElementById('intro-page').style.display = 'none';
-    autoLoadFromGitHub();
+    
+    // Gọi hàm lấy nhạc từ GitHub (phải trùng tên với hàm async phía trên)
+    autoLoadFromGitHub(); 
 }
 
 audio.onended = function() {
