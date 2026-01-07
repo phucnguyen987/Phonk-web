@@ -1,0 +1,16 @@
+{
+  "short_name": "PhonkSystem",
+  "name": "Phonk Music System 24/7",
+  "icons": [
+    {
+      "src": "https://png.pngtree.com/template/20241225/ourmid/pngtree-happy-2026-chinese-new-year-vector-with-circle-frame-and-lantern-image_2038990.jpg",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#000000",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#ff0000"
+}
