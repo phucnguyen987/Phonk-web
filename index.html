@@ -6,10 +6,21 @@
     <title>PHONK SYSTEM PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <style>
+        html, body {
+            overflow-y: auto !important; /* Luôn cho phép cuộn dọc */
+            height: auto !important;    /* Không cố định chiều cao để TV nhận diện được nội dung dài */
+            min-height: 100%;
+            -ms-overflow-style: scrollbar; /* Hiện thanh cuộn cho trình duyệt cũ */
+        }
+        .container {
+            padding-bottom: 50px; /* Tránh bị che mất phần cuối trên màn hình TV */
+        }
+    </style>
 </head>
 <body>
     <div id="intro-page">
@@ -39,5 +50,36 @@
 
     <audio id="mainAudio" playsinline></audio>
     <script src="script.js"></script>
+
+    <script>
+        window.addEventListener("keydown", function(e) {
+            // Mã phím 40 là nút Xuống, 38 là nút Lên trên Remote TV
+            switch(e.keyCode) {
+                case 40: // ArrowDown
+                    window.scrollBy(0, 150); // Cuộn xuống 150px mỗi lần bấm
+                    break;
+                case 38: // ArrowUp
+                    window.scrollBy(0, -150); // Cuộn lên 150px mỗi lần bấm
+                    break;
+                case 13: // Enter (Nút OK trên Remote)
+                    // Hỗ trợ TV nhận diện lệnh chọn nhạc tốt hơn
+                    break;
+            }
+        });
+
+        // Tự động kiểm tra nếu Intro Page làm kẹt thanh cuộn
+        function startAppFixed() {
+            if (typeof startApp === "function") {
+                startApp(); 
+                // Sau khi vào hệ thống, ép trình duyệt tính toán lại chiều cao trang
+                setTimeout(function() {
+                    window.scrollTo(0, 0);
+                    document.body.style.overflow = "auto";
+                }, 500);
+            }
+        }
+        // Ghi đè nút bấm để dùng hàm fix
+        document.querySelector('.start-btn').setAttribute('onclick', 'startAppFixed()');
+    </script>
 </body>
 </html>
