@@ -11,14 +11,43 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
+        /* FIX TRỰC TIẾP CHO TV SAMSUNG */
         html, body {
-            overflow-y: auto !important; /* Luôn cho phép cuộn dọc */
-            height: auto !important;    /* Không cố định chiều cao để TV nhận diện được nội dung dài */
-            min-height: 100%;
-            -ms-overflow-style: scrollbar; /* Hiện thanh cuộn cho trình duyệt cũ */
+            overflow-y: auto !important;
+            height: auto !important;
+            min-height: 100vh !important;
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            -ms-overflow-style: scrollbar !important; /* Hiện thanh cuộn gốc của TV */
         }
+
         .container {
-            padding-bottom: 50px; /* Tránh bị che mất phần cuối trên màn hình TV */
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important; /* Không cho phép container chặn cuộn */
+            padding: 20px;
+            display: block !important; /* Đảm bảo hiển thị dạng khối để kéo dài trang */
+        }
+
+        /* Playlist phải dài ra theo số lượng bài hát để trang web có thanh cuộn */
+        .playlist-container {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            border: none !important; /* Bỏ viền kẹt khung */
+        }
+
+        /* Tạo khoảng cách dưới cùng để không bị lẹm màn hình TV */
+        .controls {
+            margin-top: 30px;
+            padding-bottom: 100px;
+        }
+
+        /* Hiệu ứng focus cho Remote TV (nếu bạn dùng nút điều hướng) */
+        .song-item:focus {
+            background-color: rgba(255, 0, 0, 0.4) !important;
+            outline: 2px solid red;
         }
     </style>
 </head>
@@ -27,7 +56,7 @@
         <div class="intro-content">
             <h1 class="glitch">☣️ PHUCNGUYEN X PHONK ☣️</h1>
             <p>HƠN 50 BÀI HAY NHẤT 2026 | VÀ HOẠT ĐỘNG 24/7</p>
-            <button class="start-btn" onclick="startApp()">VÀO HỆ THỐNG</button>
+            <button class="start-btn" onclick="startAppFixed()">VÀO HỆ THỐNG</button>
         </div>
     </div>
 
@@ -37,49 +66,50 @@
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
         <div id="customPlaylist" class="playlist-container">
-            <div style="padding:20px; color:#555;">Đang nạp danh sách...</div>
-        </div>
+            </div>
 
         <div class="controls">
             <button class="btn-main" onclick="handlePlay()" id="playBtn">PHÁT NHẠC</button>
             <button class="btn-loop" onclick="handleLoop()" id="loopBtn">LẶP: TẮT</button>
         </div>
 
-        <div id="status">Sẵn sàng quẩy...</div>
+        <div id="status" style="color: #00ff00; padding: 10px;">Sẵn sàng quẩy...</div>
     </div>
 
     <audio id="mainAudio" playsinline></audio>
     <script src="script.js"></script>
 
     <script>
+        // HÀM BẮT ĐẦU ĐÃ FIX CHO TV
+        function startAppFixed() {
+            // Tắt trang intro
+            document.getElementById('intro-page').style.display = 'none';
+            
+            // Chạy hàm nạp nhạc gốc của bạn (trong script.js)
+            if (typeof startApp === "function") {
+                startApp();
+            }
+
+            // ÉP TV NHẬN DIỆN CHIỀU CAO MỚI SAU KHI NẠP NHẠC
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+                document.body.style.overflowY = "auto";
+                console.log("TV Scroll Initialized");
+            }, 500);
+        }
+
+        // BẮT PHÍM REMOTE TV (UP/DOWN)
         window.addEventListener("keydown", function(e) {
-            // Mã phím 40 là nút Xuống, 38 là nút Lên trên Remote TV
-            switch(e.keyCode) {
-                case 40: // ArrowDown
-                    window.scrollBy(0, 150); // Cuộn xuống 150px mỗi lần bấm
-                    break;
-                case 38: // ArrowUp
-                    window.scrollBy(0, -150); // Cuộn lên 150px mỗi lần bấm
-                    break;
-                case 13: // Enter (Nút OK trên Remote)
-                    // Hỗ trợ TV nhận diện lệnh chọn nhạc tốt hơn
-                    break;
+            const scrollDistance = 250; // Mỗi lần bấm remote nhảy 250px
+            if (e.keyCode == 40) { // Nút Xuống
+                window.scrollBy({ top: scrollDistance, behavior: 'smooth' });
+            } else if (e.keyCode == 38) { // Nút Lên
+                window.scrollBy({ top: -scrollDistance, behavior: 'smooth' });
             }
         });
 
-        // Tự động kiểm tra nếu Intro Page làm kẹt thanh cuộn
-        function startAppFixed() {
-            if (typeof startApp === "function") {
-                startApp(); 
-                // Sau khi vào hệ thống, ép trình duyệt tính toán lại chiều cao trang
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                    document.body.style.overflow = "auto";
-                }, 500);
-            }
-        }
-        // Ghi đè nút bấm để dùng hàm fix
-        document.querySelector('.start-btn').setAttribute('onclick', 'startAppFixed()');
+        // Tự động gán lại nút bấm vào hệ thống
+        document.querySelector('.start-btn').onclick = startAppFixed;
     </script>
 </body>
 </html>
