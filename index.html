@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PHONK SYSTEM PRO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -11,43 +11,53 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* FIX TRỰC TIẾP CHO TV SAMSUNG */
+        /* FIX TỔNG THỂ CHO CẢ TV VÀ ĐIỆN THOẠI */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
-            min-height: 100vh !important;
+            min-height: 100vh;
             background-color: #000;
             margin: 0;
             padding: 0;
-            -ms-overflow-style: scrollbar !important; /* Hiện thanh cuộn gốc của TV */
+            -ms-overflow-style: scrollbar !important;
         }
 
         .container {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important; /* Không cho phép container chặn cuộn */
-            padding: 20px;
-            display: block !important; /* Đảm bảo hiển thị dạng khối để kéo dài trang */
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Giữ khung luôn đầy màn hình */
         }
 
-        /* Playlist phải dài ra theo số lượng bài hát để trang web có thanh cuộn */
+        /* Playlist: Tự động dài ra nhưng không làm mất bố cục */
         .playlist-container {
+            flex: 1; /* Đẩy các nút điều khiển xuống dưới cùng */
             height: auto !important;
             max-height: none !important;
             overflow: visible !important;
-            border: none !important; /* Bỏ viền kẹt khung */
+            margin-bottom: 20px;
         }
 
-        /* Tạo khoảng cách dưới cùng để không bị lẹm màn hình TV */
+        /* Khung điều khiển: Giữ cố định khoảng cách với danh sách nhạc */
         .controls {
-            margin-top: 30px;
-            padding-bottom: 100px;
+            padding: 15px 0;
+            background: rgba(0,0,0,0.8);
+            border-top: 1px solid #333;
         }
 
-        /* Hiệu ứng focus cho Remote TV (nếu bạn dùng nút điều hướng) */
-        .song-item:focus {
-            background-color: rgba(255, 0, 0, 0.4) !important;
-            outline: 2px solid red;
+        #status {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            padding-bottom: 30px; /* Chừa chỗ cho các phím ảo trên điện thoại */
+        }
+
+        /* Hiệu ứng focus để dùng Remote TV dễ chọn bài */
+        .song-item:focus, .song-item.active {
+            background: rgba(255, 0, 0, 0.2) !important;
+            border-left: 5px solid red !important;
         }
     </style>
 </head>
@@ -55,7 +65,7 @@
     <div id="intro-page">
         <div class="intro-content">
             <h1 class="glitch">☣️ PHUCNGUYEN X PHONK ☣️</h1>
-            <p>HƠN 50 BÀI HAY NHẤT 2026 | VÀ HOẠT ĐỘNG 24/7</p>
+            <p>HƠN 50 BÀI HAY NHẤT 2026 | HOẠT ĐỘNG 24/7</p>
             <button class="start-btn" onclick="startAppFixed()">VÀO HỆ THỐNG</button>
         </div>
     </div>
@@ -69,47 +79,37 @@
             </div>
 
         <div class="controls">
-            <button class="btn-main" onclick="handlePlay()" id="playBtn">PHÁT NHẠC</button>
-            <button class="btn-loop" onclick="handleLoop()" id="loopBtn">LẶP: TẮT</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="btn-main" style="flex: 2;" onclick="handlePlay()" id="playBtn">PHÁT NHẠC</button>
+                <button class="btn-loop" style="flex: 1;" onclick="handleLoop()" id="loopBtn">LẶP: TẮT</button>
+            </div>
+            <div id="status">✅ Đã sẵn sàng: 7 bài!</div>
         </div>
-
-        <div id="status" style="color: #00ff00; padding: 10px;">Sẵn sàng quẩy...</div>
     </div>
 
     <audio id="mainAudio" playsinline></audio>
     <script src="script.js"></script>
 
     <script>
-        // HÀM BẮT ĐẦU ĐÃ FIX CHO TV
         function startAppFixed() {
-            // Tắt trang intro
             document.getElementById('intro-page').style.display = 'none';
+            if (typeof startApp === "function") startApp();
             
-            // Chạy hàm nạp nhạc gốc của bạn (trong script.js)
-            if (typeof startApp === "function") {
-                startApp();
-            }
-
-            // ÉP TV NHẬN DIỆN CHIỀU CAO MỚI SAU KHI NẠP NHẠC
-            setTimeout(function() {
+            // Sau khi vào, cuộn về đầu trang
+            setTimeout(() => {
                 window.scrollTo(0, 0);
-                document.body.style.overflowY = "auto";
-                console.log("TV Scroll Initialized");
-            }, 500);
+            }, 300);
         }
 
-        // BẮT PHÍM REMOTE TV (UP/DOWN)
+        // ĐIỀU KHIỂN BẰNG REMOTE TV SAMSUNG
         window.addEventListener("keydown", function(e) {
-            const scrollDistance = 250; // Mỗi lần bấm remote nhảy 250px
-            if (e.keyCode == 40) { // Nút Xuống
-                window.scrollBy({ top: scrollDistance, behavior: 'smooth' });
-            } else if (e.keyCode == 38) { // Nút Lên
-                window.scrollBy({ top: -scrollDistance, behavior: 'smooth' });
+            const step = 200; 
+            if (e.keyCode === 40) { // Nút Xuống
+                window.scrollBy({ top: step, behavior: 'smooth' });
+            } else if (e.keyCode === 38) { // Nút Lên
+                window.scrollBy({ top: -step, behavior: 'smooth' });
             }
         });
-
-        // Tự động gán lại nút bấm vào hệ thống
-        document.querySelector('.start-btn').onclick = startAppFixed;
     </script>
 </body>
 </html>
