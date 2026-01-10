@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* GIỮ NGUYÊN CSS GỐC ĐỂ CHẠY TRÊN TV/MOBILE */
+        /* FIX TỔNG THỂ CHO CẢ TV VÀ ĐIỆN THOẠI */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -31,6 +31,7 @@
             min-height: 100vh; 
         }
 
+        /* Playlist: Tự động dài ra nhưng không làm mất bố cục */
         .playlist-container {
             flex: 1; 
             height: auto !important;
@@ -39,6 +40,7 @@
             margin-bottom: 20px;
         }
 
+        /* Khung điều khiển: Giữ cố định khoảng cách với danh sách nhạc */
         .controls {
             padding: 15px 0;
             background: rgba(0,0,0,0.8);
@@ -52,77 +54,41 @@
             padding-bottom: 30px; 
         }
 
+        /* Hiệu ứng focus để dùng Remote TV dễ chọn bài */
         .song-item:focus, .song-item.active {
             background: rgba(255, 0, 0, 0.2) !important;
             border-left: 5px solid red !important;
         }
 
-        /* STYLE HỆ THỐNG TẢI NHẠC Y2META */
-        .btn-upload-top {
+        /* NÚT UPLOAD FILE - MẶC ĐỊNH LÀ ẨN (DISPLAY: NONE) */
+        #upload-btn-top {
+            display: none; 
             position: fixed;
             top: 10px;
             left: 10px;
             z-index: 9999;
-            padding: 8px 12px;
-            background: #24292e;
+            padding: 10px 15px;
+            background: #1a1a1a;
             color: #ff0000;
-            border: 1px solid #ff0000;
-            border-radius: 5px;
-            font-size: 11px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            font-size: 12px;
             cursor: pointer;
             font-weight: bold;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+            transition: 0.3s;
         }
 
-        .btn-yt-opener {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, #ff0000, #990000);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-
-        #yt-menu {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            max-width: 350px;
-            background: #111;
-            padding: 20px;
-            border: 2px solid red;
-            border-radius: 15px;
-            z-index: 10000;
-            text-align: center;
-            box-shadow: 0 0 25px rgba(255,0,0,0.5);
-        }
-
-        #yt-url {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            background: #222;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        #dl-progress {
-            display: none;
-            color: #00ff00;
-            font-size: 13px;
-            margin: 10px 0;
+        #upload-btn-top:active {
+            transform: scale(0.9);
+            background: #ff0000;
+            color: #fff;
         }
     </style>
 </head>
 <body>
-    <button class="btn-upload-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD FILE</button>
+
+    <button id="upload-btn-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD MUSIC</button>
 
     <div id="intro-page">
         <div class="intro-content">
@@ -135,11 +101,10 @@
     <div class="container">
         <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
-        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 TẢI NHẠC (AUTO Y2META)</button>
-
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
-        <div id="customPlaylist" class="playlist-container"></div>
+        <div id="customPlaylist" class="playlist-container">
+            </div>
 
         <div class="controls">
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -150,68 +115,36 @@
         </div>
     </div>
 
-    <div id="yt-menu">
-        <h3 style="margin:0; color:red;">DÁN LINK YOUTUBE</h3>
-        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
-        
-        <button id="dl-btn" onclick="autoDownload()" style="width:100%; padding:12px; background:#fff; color:#000; border:none; border-radius:5px; font-weight:bold;">
-            TẢI XUỐNG NGAY
-        </button>
-
-        <div id="dl-progress" style="display:none; color:yellow; margin-top:10px;">⏳ Đang mở trang tải nhạc...</div>
-
-        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
-    </div>
-
     <audio id="mainAudio" playsinline></audio>
     <script src="script.js"></script>
 
     <script>
         function startAppFixed() {
+            // 1. Ẩn trang Intro
             document.getElementById('intro-page').style.display = 'none';
-            if (typeof startApp === "function") startApp();
-            setTimeout(() => { window.scrollTo(0, 0); }, 300);
-        }
-
-        window.addEventListener("keydown", function(e) {
-            if (e.keyCode === 40) { window.scrollBy({ top: 200, behavior: 'smooth' }); }
-            else if (e.keyCode === 38) { window.scrollBy({ top: -200, behavior: 'smooth' }); }
-        });
-
-        // LOGIC TRUYỀN DỮ LIỆU TỚI Y2META.IS
-        function autoDownload() {
-            const url = document.getElementById('yt-url').value;
-            const btn = document.getElementById('dl-btn');
-            const progress = document.getElementById('dl-progress');
-
-            if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
-                alert("Vui lòng dán link YouTube hợp lệ!");
-                return;
-            }
-
-            btn.style.display = 'none';
-            progress.style.display = 'block';
-
-            let videoId = "";
-            if(url.includes("v=")) { 
-                videoId = url.split("v=")[1].split("&")[0]; 
-            } else { 
-                videoId = url.split("/").pop(); 
-            }
-
-            // SỬ DỤNG ĐÚNG CẤU TRÚC LINK Y2META.IS ĐỂ AUTO NHẬN VIDEO
-            const y2metaUrl = `https://y2meta.is/en92/youtube/${videoId}`;
             
+            // 2. Hiện nút Upload (Lệnh sửa lỗi của bạn ở đây)
+            document.getElementById('upload-btn-top').style.display = 'block';
+
+            // 3. Gọi hàm khởi tạo app từ script.js (nếu có)
+            if (typeof startApp === "function") startApp();
+            
+            // 4. Cuộn về đầu trang
             setTimeout(() => {
-                window.open(y2metaUrl, '_blank'); // Mở trang tải với video đã load sẵn
-                
-                // Reset giao diện
-                progress.style.display = 'none';
-                btn.style.display = 'block';
-                document.getElementById('yt-menu').style.display = 'none';
-                document.getElementById('yt-url').value = "";
-            }, 800);
+                window.scrollTo(0, 0);
+            }, 300);
         }
+
+        // ĐIỀU KHIỂN BẰNG REMOTE TV SAMSUNG
+        window.addEventListener("keydown", function(e) {
+            const step = 200; 
+            if (e.keyCode === 40) { // Nút Xuống
+                window.scrollBy({ top: step, behavior: 'smooth' });
+            } else if (e.keyCode === 38) { // Nút Lên
+                window.scrollBy({ top: -step, behavior: 'smooth' });
+            }
+        });
     </script>
 </body>
-</html>
+    </html>
+    
