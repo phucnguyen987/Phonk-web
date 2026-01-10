@@ -59,9 +59,66 @@
             background: rgba(255, 0, 0, 0.2) !important;
             border-left: 5px solid red !important;
         }
+
+        /* === THÊM MỚI: STYLE CHO 2 NÚT QUẢN LÝ === */
+        .btn-upload-top {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 9999;
+            padding: 8px 12px;
+            background: #24292e;
+            color: white;
+            border: 1px solid #ff0000;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-yt-main {
+            width: 90%;
+            margin: 10px auto;
+            padding: 15px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        #yt-menu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 350px;
+            background: #111;
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            z-index: 10000;
+            text-align: center;
+        }
+
+        #yt-menu input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
+    <button class="btn-upload-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD MUSIC</button>
+
     <div id="intro-page">
         <div class="intro-content">
             <h1 class="glitch">☣️ PHUCNGUYEN X PHONK ☣️</h1>
@@ -73,6 +130,8 @@
     <div class="container">
         <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
+        <button class="btn-yt-main" onclick="document.getElementById('yt-menu').style.display='block'">DOWNLOAD FROM YOUTUBE (.MP3)</button>
+
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
         <div id="customPlaylist" class="playlist-container">
@@ -85,6 +144,13 @@
             </div>
             <div id="status">✅ Đã sẵn sàng: 7 bài!</div>
         </div>
+    </div>
+
+    <div id="yt-menu">
+        <h3 style="margin-top:0;">DÁN LINK YOUTUBE</h3>
+        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        <button onclick="downloadMusic()" style="width:100%; padding:10px; background:green; color:white; border:none; border-radius:5px; font-weight:bold;">TẠI FILE .MP3</button>
+        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:10px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
     </div>
 
     <audio id="mainAudio" playsinline></audio>
@@ -110,6 +176,19 @@
                 window.scrollBy({ top: -step, behavior: 'smooth' });
             }
         });
+
+        // HÀM XỬ LÝ TẢI NHẠC
+        function downloadMusic() {
+            let url = document.getElementById('yt-url').value;
+            if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                // Chuyển hướng sang trang tải nhạc uy tín với link đã dán
+                window.open('https://www.y2mate.com/youtube/' + url.split('v=')[1], '_blank');
+                document.getElementById('yt-menu').style.display='none';
+            } else {
+                alert("Vui lòng dán link YouTube hợp lệ!");
+            }
+        }
     </script>
 </body>
-</html>
+    </html>
+    
