@@ -14,9 +14,9 @@ const YOUR_GITHUB_USER = 'phucnguyen987';
 const YOUR_REPO_NAME = 'Phonk-web';
 
 async function autoLoadFromGitHub() {
-    status.innerText = "📡 Đang quét nhạc từ GitHub...";
+    status.innerText = "ĐANG LOAD NHẠC...";
     try {
-        const repoUrl = `https://api.github.com/repos/${YOUR_GITHUB_USER}/${YOUR_REPO_NAME}/contents/music`;
+        const repoUrl = `https://api.github.com/repos/${phucnguyen987}/${Phonk-web}/contents/music`;
         
         const response = await fetch(repoUrl);
         if (!response.ok) throw new Error();
@@ -32,7 +32,7 @@ async function autoLoadFromGitHub() {
             }));
             
         renderPlaylist(playlist);
-        status.innerText = `✅ Đã sẵn sàng: ${playlist.length} bài!`;
+        status.innerText = `✅ ĐÃ LOAD XONG: ${playlist.length} bài!`;
     } catch (err) {
         status.innerText = "❌ Lỗi: Kiểm tra lại tên User hoặc Repo!";
         console.error(err);
@@ -57,7 +57,7 @@ function selectSong(element, url) {
     audio.src = url;
     audio.play();
     playBtn.innerText = "TẠM DỪNG";
-    status.innerText = "🔥 Đang nổ loa: " + element.innerText;
+    status.innerText = "🔥ĐANG PHÁT BÀI: " + element.innerText;
 }
 
 function handlePlay() {
