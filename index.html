@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* FIX TỔNG THỂ CHO CẢ TV VÀ ĐIỆN THOẠI */
+        /* CSS GỐC GIỮ NGUYÊN ĐỂ CHẠY TRÊN TV/MOBILE */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -57,7 +57,7 @@
             border-left: 5px solid red !important;
         }
 
-        /* --- STYLE MỚI CHO BỘ TẢI NHẠC --- */
+        /* STYLE HỆ THỐNG TẢI NHẠC AUTO */
         .btn-upload-top {
             position: fixed;
             top: 10px;
@@ -83,7 +83,6 @@
             font-weight: bold;
             margin-bottom: 15px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255,0,0,0.4);
         }
 
         #yt-menu {
@@ -100,7 +99,6 @@
             border-radius: 15px;
             z-index: 10000;
             text-align: center;
-            box-shadow: 0 0 30px rgba(255,0,0,0.6);
         }
 
         #yt-url {
@@ -113,10 +111,17 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+
+        #dl-progress {
+            display: none;
+            color: #00ff00;
+            font-size: 13px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
-    <button class="btn-upload-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD TO GITHUB</button>
+    <button class="btn-upload-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD FILE</button>
 
     <div id="intro-page">
         <div class="intro-content">
@@ -129,12 +134,11 @@
     <div class="container">
         <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
-        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 TẢI NHẠC TỪ YOUTUBE (.MP3)</button>
+        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 AUTO DOWNLOAD MP3 (YT)</button>
 
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
-        <div id="customPlaylist" class="playlist-container">
-            </div>
+        <div id="customPlaylist" class="playlist-container"></div>
 
         <div class="controls">
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -146,14 +150,16 @@
     </div>
 
     <div id="yt-menu">
-        <h3 style="margin-top:0; color:red;">DOWNLOAD MP3</h3>
-        <p style="font-size:11px; color:gray;">Dán link video và đợi hệ thống tải về máy</p>
+        <h3 style="margin:0; color:red;">DÁN LINK YOUTUBE</h3>
         <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
-        <button id="dl-btn" onclick="startDirectDownload()" style="width:100%; padding:12px; background:#fff; color:#000; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
-            BẮT ĐẦU TẢI VỀ
+        
+        <button id="dl-btn" onclick="autoDownload()" style="width:100%; padding:12px; background:#fff; color:#000; border:none; border-radius:5px; font-weight:bold;">
+            TẢI XUỐNG NGAY
         </button>
-        <div id="dl-loading" style="display:none; margin-top:10px; color:yellow; font-size:12px;">Đang xử lý... Vui lòng không đóng!</div>
-        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
+
+        <div id="dl-progress">⏳ Đang xử lý... Vui lòng đợi!</div>
+
+        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray;">Đóng</button>
     </div>
 
     <audio id="mainAudio" playsinline></audio>
@@ -166,51 +172,55 @@
             setTimeout(() => { window.scrollTo(0, 0); }, 300);
         }
 
-        // ĐIỀU KHIỂN REMOTE TV
         window.addEventListener("keydown", function(e) {
-            const step = 200; 
-            if (e.keyCode === 40) { window.scrollBy({ top: step, behavior: 'smooth' }); }
-            else if (e.keyCode === 38) { window.scrollBy({ top: -step, behavior: 'smooth' }); }
+            if (e.keyCode === 40) { window.scrollBy({ top: 200, behavior: 'smooth' }); }
+            else if (e.keyCode === 38) { window.scrollBy({ top: -200, behavior: 'smooth' }); }
         });
 
-        // HÀM TẢI NHẠC TRỰC TIẾP (KHÔNG QUA Y2MATE)
-        function startDirectDownload() {
+        // LOGIC TẢI AUTO KHÔNG QUA WEB TRUNG GIAN
+        function autoDownload() {
             const url = document.getElementById('yt-url').value;
             const btn = document.getElementById('dl-btn');
-            const loading = document.getElementById('dl-loading');
+            const progress = document.getElementById('dl-progress');
 
             if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
-                alert("Vui lòng dán đúng link YouTube!");
+                alert("Link không hợp lệ!");
                 return;
             }
 
             btn.style.display = 'none';
-            loading.style.display = 'block';
+            progress.style.display = 'block';
 
-            // Trích xuất ID video
             let videoId = "";
-            if(url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
-            else { videoId = url.split("/").pop(); }
+            try {
+                if(url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
+                else { videoId = url.split("/").pop(); }
+            } catch(e) { alert("Lỗi lấy ID video!"); return; }
 
-            // Gọi API tải nhạc trực tiếp (Tự động tải về máy)
+            // Sử dụng API Endpoint trực tiếp để kích hoạt Download
             const apiUrl = `https://api.vevioz.com/api/button/mp3/${videoId}`;
             
-            // Tạo Iframe ẩn để kích hoạt lệnh tải của trình duyệt
-            const dlFrame = document.createElement('iframe');
-            dlFrame.style.display = 'none';
-            dlFrame.src = apiUrl;
-            document.body.appendChild(dlFrame);
+            // Tạo một thẻ 'a' ẩn để thực hiện lệnh tải ngầm
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.style.display = 'none';
+            downloadAnchor.href = apiUrl;
+            downloadAnchor.setAttribute('download', ''); // Ép trình duyệt tải về
+            downloadAnchor.target = '_self'; // Giữ nguyên ở trang hiện tại
+            
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click(); // Kích hoạt lệnh tải
 
+            // Thông báo trạng thái
             setTimeout(() => {
-                loading.innerHTML = "✅ Đang tải... Kiểm tra thông báo máy!";
+                progress.innerHTML = "✅ Đã gửi lệnh tải! Kiểm tra máy bạn.";
                 setTimeout(() => {
-                    loading.style.display = 'none';
+                    progress.style.display = 'none';
                     btn.style.display = 'block';
                     document.getElementById('yt-menu').style.display = 'none';
+                    document.getElementById('yt-url').value = "";
                 }, 3000);
             }, 2000);
         }
     </script>
 </body>
-                                                                                                          </html>
-    
+</html>
