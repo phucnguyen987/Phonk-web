@@ -8,35 +8,41 @@ let playlist = [];
 let selectedUrl = "";
 let isLooping = false;
 
+// CẤU HÌNH GITHUB
 const YOUR_GITHUB_USER = 'phucnguyen987'; 
 const YOUR_REPO_NAME = 'Phonk-web';
 
-// --- HÀM LỌC TÊN THẬT (XÓA RÁC QUẢNG CÁO) ---
+// --- HÀM LỌC TÊN THẬT (FIX LỖI MẤT BÀI) ---
 function getCleanName(name) {
-    let n = name.replace('.mp3', ''); // Xóa đuôi file
+    if (!name) return "Bài hát không tên";
     
-    // 1. Xóa các trang web tải nhạc phổ biến
+    // 1. Xóa đuôi file .mp3 (không phân biệt hoa thường)
+    let n = name.replace(/\.mp3/i, ''); 
+    
+    // 2. Danh sách các từ cần xóa sạch (Quảng cáo web)
     const junkWords = [
         'y2meta.is', 'y2mate.com', 'vevioz.com', 'yt5s.com', 
-        'snapsave.io', 'SaveTube.App', '9xbuddy', 'Download',
-        '-', '_', '[', ']', '(', ')'
+        'snapsave.io', 'SaveTube.App', '9xbuddy', 'Download'
     ];
     
     junkWords.forEach(word => {
-        // Xóa từ và các khoảng trắng dư thừa
-        n = n.split(word).join(' ');
+        let reg = new RegExp(word, "gi");
+        n = n.replace(reg, "");
     });
 
-    // 2. Xóa các chuỗi mã ID video thường dính ở cuối (ví dụ: gWpI0fL...)
-    n = n.replace(/[a-zA-Z0-9_-]{11}$/, "");
+    // 3. Thay thế các ký tự đặc biệt thành khoảng trắng
+    n = n.replace(/[_\-\[\]\(\)]/g, ' ');
 
-    // 3. Rút gọn tên nếu quá dài (giới hạn 25 ký tự cho danh sách)
-    n = n.trim();
-    if (n.length > 25) {
-        n = n.substring(0, 25) + "...";
+    // 4. Xóa các khoảng trắng dư thừa
+    n = n.replace(/\s+/g, ' ').trim();
+
+    // 5. Rút gọn tên nếu quá dài để không tràn dòng (Giới hạn 30 ký tự)
+    if (n.length > 30) {
+        n = n.substring(0, 30) + "...";
     }
     
-    return n || "Bài hát không tên";
+    // Nếu sau khi lọc mà chuỗi trống, trả về tên gốc (để không bị mất bài)
+    return n || name.replace(/\.mp3/i, '');
 }
 
 async function autoLoadFromGitHub() {
@@ -44,9 +50,12 @@ async function autoLoadFromGitHub() {
     try {
         const repoUrl = `https://api.github.com/repos/${YOUR_GITHUB_USER}/${YOUR_REPO_NAME}/contents/music`;
         const response = await fetch(repoUrl);
-        if (!response.ok) throw new Error("Lỗi kết nối GitHub API");
+        
+        if (!response.ok) throw new Error("Lỗi kết nối GitHub");
         
         const data = await response.json();
+        
+        // Lấy danh sách file mp3
         playlist = data
             .filter(file => file.name.toLowerCase().endsWith('.mp3'))
             .map(file => ({
@@ -55,7 +64,7 @@ async function autoLoadFromGitHub() {
             }));
             
         if (playlist.length === 0) {
-            statusLabel.innerText = "❌ Thư mục /music trống!";
+            statusLabel.innerText = "❌ Thư mục /music không có nhạc!";
             return;
         }
 
@@ -63,17 +72,18 @@ async function autoLoadFromGitHub() {
         statusLabel.innerText = `✅ ĐÃ LOAD XONG: ${playlist.length} bài!`;
     } catch (err) {
         statusLabel.innerHTML = `<span style="color: #ff4444;">❌ Lỗi: Kiểm tra lại tên User hoặc Repo!</span>`;
+        console.error(err);
     }
 }
 
 function renderPlaylist(list) {
-    playlistDiv.innerHTML = "";
+    playlistDiv.innerHTML = ""; // Xóa danh sách cũ
     list.forEach((file, index) => {
         const div = document.createElement('div');
         div.className = 'song-item';
         div.setAttribute('tabindex', '0'); 
         
-        // SỬ DỤNG HÀM LỌC TÊN THẬT TẠI ĐÂY
+        // Lấy tên sạch để hiển thị
         const cleanName = getCleanName(file.fullName);
         div.innerText = `${index + 1}. ${cleanName}`;
         
@@ -87,12 +97,12 @@ function renderPlaylist(list) {
 function selectSong(element, url, fullName) {
     document.querySelectorAll('.song-item').forEach(i => i.classList.remove('active'));
     element.classList.add('active');
+    
     selectedUrl = url;
     audio.src = url;
-    audio.play().catch(e => console.log("Auto-play blocked"));
-    playBtn.innerText = "TẠM DỪNG";
+    audio.play().catch(e => console.log("Yêu cầu tương tác để phát nhạc"));
     
-    // Khi phát vẫn hiện tên đã lọc sạch
+    playBtn.innerText = "TẠM DỪNG";
     statusLabel.innerText = "🔥 ĐANG PHÁT: " + getCleanName(fullName);
 }
 
@@ -129,3 +139,4 @@ audio.onended = function() {
         }
     }
 };
+        
