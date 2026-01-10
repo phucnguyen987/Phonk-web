@@ -28,19 +28,17 @@
             padding: 15px;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Giữ khung luôn đầy màn hình */
+            min-height: 100vh; 
         }
 
-        /* Playlist: Tự động dài ra nhưng không làm mất bố cục */
         .playlist-container {
-            flex: 1; /* Đẩy các nút điều khiển xuống dưới cùng */
+            flex: 1; 
             height: auto !important;
             max-height: none !important;
             overflow: visible !important;
             margin-bottom: 20px;
         }
 
-        /* Khung điều khiển: Giữ cố định khoảng cách với danh sách nhạc */
         .controls {
             padding: 15px 0;
             background: rgba(0,0,0,0.8);
@@ -51,16 +49,15 @@
             text-align: center;
             margin-top: 10px;
             font-weight: bold;
-            padding-bottom: 30px; /* Chừa chỗ cho các phím ảo trên điện thoại */
+            padding-bottom: 30px; 
         }
 
-        /* Hiệu ứng focus để dùng Remote TV dễ chọn bài */
         .song-item:focus, .song-item.active {
             background: rgba(255, 0, 0, 0.2) !important;
             border-left: 5px solid red !important;
         }
 
-        /* === THÊM MỚI: STYLE CHO 2 NÚT QUẢN LÝ === */
+        /* --- STYLE MỚI CHO BỘ TẢI NHẠC --- */
         .btn-upload-top {
             position: fixed;
             top: 10px;
@@ -68,25 +65,25 @@
             z-index: 9999;
             padding: 8px 12px;
             background: #24292e;
-            color: white;
+            color: #ff0000;
             border: 1px solid #ff0000;
             border-radius: 5px;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
+            font-weight: bold;
         }
 
-        .btn-yt-main {
-            width: 90%;
-            margin: 10px auto;
+        .btn-yt-opener {
+            width: 100%;
             padding: 15px;
-            background: #ff0000;
+            background: linear-gradient(45deg, #ff0000, #990000);
             color: white;
             border: none;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 16px;
+            margin-bottom: 15px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+            box-shadow: 0 0 15px rgba(255,0,0,0.4);
         }
 
         #yt-menu {
@@ -99,25 +96,27 @@
             max-width: 350px;
             background: #111;
             padding: 20px;
-            border: 2px solid #ff0000;
+            border: 2px solid red;
             border-radius: 15px;
             z-index: 10000;
             text-align: center;
+            box-shadow: 0 0 30px rgba(255,0,0,0.6);
         }
 
-        #yt-menu input {
+        #yt-url {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 15px 0;
             background: #222;
             border: 1px solid #444;
             color: white;
+            border-radius: 5px;
             box-sizing: border-box;
         }
     </style>
 </head>
 <body>
-    <button class="btn-upload-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD MUSIC</button>
+    <button class="btn-upload-top" onclick="window.open('https://github.com/phucnguyen987/Phonk-web/upload/main/music', '_blank')">📂 UPLOAD TO GITHUB</button>
 
     <div id="intro-page">
         <div class="intro-content">
@@ -130,7 +129,7 @@
     <div class="container">
         <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
-        <button class="btn-yt-main" onclick="document.getElementById('yt-menu').style.display='block'">DOWNLOAD FROM YOUTUBE (.MP3)</button>
+        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 TẢI NHẠC TỪ YOUTUBE (.MP3)</button>
 
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
@@ -147,10 +146,14 @@
     </div>
 
     <div id="yt-menu">
-        <h3 style="margin-top:0;">DÁN LINK YOUTUBE</h3>
+        <h3 style="margin-top:0; color:red;">DOWNLOAD MP3</h3>
+        <p style="font-size:11px; color:gray;">Dán link video và đợi hệ thống tải về máy</p>
         <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
-        <button onclick="downloadMusic()" style="width:100%; padding:10px; background:green; color:white; border:none; border-radius:5px; font-weight:bold;">TẠI FILE .MP3</button>
-        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:10px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
+        <button id="dl-btn" onclick="startDirectDownload()" style="width:100%; padding:12px; background:#fff; color:#000; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
+            BẮT ĐẦU TẢI VỀ
+        </button>
+        <div id="dl-loading" style="display:none; margin-top:10px; color:yellow; font-size:12px;">Đang xử lý... Vui lòng không đóng!</div>
+        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
     </div>
 
     <audio id="mainAudio" playsinline></audio>
@@ -160,35 +163,54 @@
         function startAppFixed() {
             document.getElementById('intro-page').style.display = 'none';
             if (typeof startApp === "function") startApp();
-            
-            // Sau khi vào, cuộn về đầu trang
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 300);
+            setTimeout(() => { window.scrollTo(0, 0); }, 300);
         }
 
-        // ĐIỀU KHIỂN BẰNG REMOTE TV SAMSUNG
+        // ĐIỀU KHIỂN REMOTE TV
         window.addEventListener("keydown", function(e) {
             const step = 200; 
-            if (e.keyCode === 40) { // Nút Xuống
-                window.scrollBy({ top: step, behavior: 'smooth' });
-            } else if (e.keyCode === 38) { // Nút Lên
-                window.scrollBy({ top: -step, behavior: 'smooth' });
-            }
+            if (e.keyCode === 40) { window.scrollBy({ top: step, behavior: 'smooth' }); }
+            else if (e.keyCode === 38) { window.scrollBy({ top: -step, behavior: 'smooth' }); }
         });
 
-        // HÀM XỬ LÝ TẢI NHẠC
-        function downloadMusic() {
-            let url = document.getElementById('yt-url').value;
-            if (url.includes("youtube.com") || url.includes("youtu.be")) {
-                // Chuyển hướng sang trang tải nhạc uy tín với link đã dán
-                window.open('https://www.y2mate.com/youtube/' + url.split('v=')[1], '_blank');
-                document.getElementById('yt-menu').style.display='none';
-            } else {
-                alert("Vui lòng dán link YouTube hợp lệ!");
+        // HÀM TẢI NHẠC TRỰC TIẾP (KHÔNG QUA Y2MATE)
+        function startDirectDownload() {
+            const url = document.getElementById('yt-url').value;
+            const btn = document.getElementById('dl-btn');
+            const loading = document.getElementById('dl-loading');
+
+            if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
+                alert("Vui lòng dán đúng link YouTube!");
+                return;
             }
+
+            btn.style.display = 'none';
+            loading.style.display = 'block';
+
+            // Trích xuất ID video
+            let videoId = "";
+            if(url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
+            else { videoId = url.split("/").pop(); }
+
+            // Gọi API tải nhạc trực tiếp (Tự động tải về máy)
+            const apiUrl = `https://api.vevioz.com/api/button/mp3/${videoId}`;
+            
+            // Tạo Iframe ẩn để kích hoạt lệnh tải của trình duyệt
+            const dlFrame = document.createElement('iframe');
+            dlFrame.style.display = 'none';
+            dlFrame.src = apiUrl;
+            document.body.appendChild(dlFrame);
+
+            setTimeout(() => {
+                loading.innerHTML = "✅ Đang tải... Kiểm tra thông báo máy!";
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    btn.style.display = 'block';
+                    document.getElementById('yt-menu').style.display = 'none';
+                }, 3000);
+            }, 2000);
         }
     </script>
 </body>
-    </html>
+                                                                                                          </html>
     
