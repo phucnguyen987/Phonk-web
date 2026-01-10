@@ -16,7 +16,7 @@ const YOUR_REPO_NAME = 'Phonk-web';
 async function autoLoadFromGitHub() {
     status.innerText = "ĐANG LOAD NHẠC...";
     try {
-        const repoUrl = `https://api.github.com/repos/${phucnguyen987}/${Phonk-web}/contents/music`;
+        const repoUrl = `https://api.github.com/repos/${YOUR_NAME}/${YOUR_REPO_NAME}/contents/music`;
         
         const response = await fetch(repoUrl);
         if (!response.ok) throw new Error();
