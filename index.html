@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* CSS GỐC GIỮ NGUYÊN ĐỂ CHẠY TRÊN TV/MOBILE */
+        /* GIỮ NGUYÊN CSS GỐC CỦA BẠN */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -57,7 +57,7 @@
             border-left: 5px solid red !important;
         }
 
-        /* STYLE HỆ THỐNG TẢI NHẠC AUTO */
+        /* STYLE HỆ THỐNG TẢI NHẠC MỚI */
         .btn-upload-top {
             position: fixed;
             top: 10px;
@@ -134,7 +134,7 @@
     <div class="container">
         <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
-        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 AUTO DOWNLOAD MP3 (YT)</button>
+        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 TẢI NHẠC MP3 (Y2META AUTO)</button>
 
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
@@ -157,9 +157,9 @@
             TẢI XUỐNG NGAY
         </button>
 
-        <div id="dl-progress">⏳ Đang xử lý... Vui lòng đợi!</div>
+        <div id="dl-progress">⏳ Đang xử lý dữ liệu...</div>
 
-        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray;">Đóng</button>
+        <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
     </div>
 
     <audio id="mainAudio" playsinline></audio>
@@ -177,14 +177,14 @@
             else if (e.keyCode === 38) { window.scrollBy({ top: -200, behavior: 'smooth' }); }
         });
 
-        // LOGIC TẢI AUTO KHÔNG QUA WEB TRUNG GIAN
+        // LOGIC CHUYỂN DỮ LIỆU TỚI Y2META
         function autoDownload() {
             const url = document.getElementById('yt-url').value;
             const btn = document.getElementById('dl-btn');
             const progress = document.getElementById('dl-progress');
 
             if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
-                alert("Link không hợp lệ!");
+                alert("Vui lòng dán link YouTube hợp lệ!");
                 return;
             }
 
@@ -192,35 +192,24 @@
             progress.style.display = 'block';
 
             let videoId = "";
-            try {
-                if(url.includes("v=")) { videoId = url.split("v=")[1].split("&")[0]; }
-                else { videoId = url.split("/").pop(); }
-            } catch(e) { alert("Lỗi lấy ID video!"); return; }
+            if(url.includes("v=")) { 
+                videoId = url.split("v=")[1].split("&")[0]; 
+            } else { 
+                videoId = url.split("/").pop(); 
+            }
 
-            // Sử dụng API Endpoint trực tiếp để kích hoạt Download
-            const apiUrl = `https://api.vevioz.com/api/button/mp3/${videoId}`;
+            // Mở tab y2meta và tự động truyền ID video vào link
+            const y2metaUrl = `https://y2meta.is/en92/youtube/${videoId}`;
             
-            // Tạo một thẻ 'a' ẩn để thực hiện lệnh tải ngầm
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.style.display = 'none';
-            downloadAnchor.href = apiUrl;
-            downloadAnchor.setAttribute('download', ''); // Ép trình duyệt tải về
-            downloadAnchor.target = '_self'; // Giữ nguyên ở trang hiện tại
-            
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click(); // Kích hoạt lệnh tải
-
-            // Thông báo trạng thái
             setTimeout(() => {
-                progress.innerHTML = "✅ Đã gửi lệnh tải! Kiểm tra máy bạn.";
-                setTimeout(() => {
-                    progress.style.display = 'none';
-                    btn.style.display = 'block';
-                    document.getElementById('yt-menu').style.display = 'none';
-                    document.getElementById('yt-url').value = "";
-                }, 3000);
-            }, 2000);
+                window.open(y2metaUrl, '_blank');
+                progress.style.display = 'none';
+                btn.style.display = 'block';
+                document.getElementById('yt-menu').style.display = 'none';
+                document.getElementById('yt-url').value = "";
+            }, 1000);
         }
     </script>
 </body>
-</html>
+                                          </html>
+                                          
