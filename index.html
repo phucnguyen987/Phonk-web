@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* GIỮ NGUYÊN CSS GỐC CỦA BẠN */
+        /* GIỮ NGUYÊN CSS GỐC ĐỂ CHẠY TRÊN TV/MOBILE */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -57,7 +57,7 @@
             border-left: 5px solid red !important;
         }
 
-        /* STYLE HỆ THỐNG TẢI NHẠC MỚI */
+        /* STYLE HỆ THỐNG TẢI NHẠC Y2META */
         .btn-upload-top {
             position: fixed;
             top: 10px;
@@ -99,6 +99,7 @@
             border-radius: 15px;
             z-index: 10000;
             text-align: center;
+            box-shadow: 0 0 25px rgba(255,0,0,0.5);
         }
 
         #yt-url {
@@ -134,7 +135,7 @@
     <div class="container">
         <h2 class="neon-text">🎵PHONK MUSIC🎵</h2>
         
-        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 TẢI NHẠC MP3 (Y2META AUTO)</button>
+        <button class="btn-yt-opener" onclick="document.getElementById('yt-menu').style.display='block'">📥 TẢI NHẠC (AUTO Y2META)</button>
 
         <input type="text" id="searchInput" placeholder="Tìm tên bài Phonk..." onkeyup="filterSongs()">
 
@@ -157,7 +158,7 @@
             TẢI XUỐNG NGAY
         </button>
 
-        <div id="dl-progress">⏳ Đang xử lý dữ liệu...</div>
+        <div id="dl-progress" style="display:none; color:yellow; margin-top:10px;">⏳ Đang mở trang tải nhạc...</div>
 
         <button onclick="document.getElementById('yt-menu').style.display='none'" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer;">Đóng</button>
     </div>
@@ -177,7 +178,7 @@
             else if (e.keyCode === 38) { window.scrollBy({ top: -200, behavior: 'smooth' }); }
         });
 
-        // LOGIC CHUYỂN DỮ LIỆU TỚI Y2META
+        // LOGIC TRUYỀN DỮ LIỆU TỚI Y2META.IS
         function autoDownload() {
             const url = document.getElementById('yt-url').value;
             const btn = document.getElementById('dl-btn');
@@ -198,18 +199,19 @@
                 videoId = url.split("/").pop(); 
             }
 
-            // Mở tab y2meta và tự động truyền ID video vào link
+            // SỬ DỤNG ĐÚNG CẤU TRÚC LINK Y2META.IS ĐỂ AUTO NHẬN VIDEO
             const y2metaUrl = `https://y2meta.is/en92/youtube/${videoId}`;
             
             setTimeout(() => {
-                window.open(y2metaUrl, '_blank');
+                window.open(y2metaUrl, '_blank'); // Mở trang tải với video đã load sẵn
+                
+                // Reset giao diện
                 progress.style.display = 'none';
                 btn.style.display = 'block';
                 document.getElementById('yt-menu').style.display = 'none';
                 document.getElementById('yt-url').value = "";
-            }, 1000);
+            }, 800);
         }
     </script>
 </body>
-                                          </html>
-                                          
+</html>
