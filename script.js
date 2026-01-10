@@ -1,6 +1,6 @@
 const audio = document.getElementById('mainAudio');
 const playlistDiv = document.getElementById('customPlaylist');
-const status = document.getElementById('status');
+const statusLabel = document.getElementById('status'); // Đã đổi tên để tránh trùng với biến hệ thống
 const playBtn = document.getElementById('playBtn');
 const loopBtn = document.getElementById('loopBtn');
 
@@ -8,22 +8,25 @@ let playlist = [];
 let selectedUrl = "";
 let isLooping = false;
 
-// ĐÂY LÀ CHỖ BẠN CẦN THAY ĐỔI
-// Hãy thay 'TEN_CUA_BAN' và 'TEN_KHO_NHAC' bằng tên thật trên GitHub của bạn
+// CẤU HÌNH GITHUB CHÍNH XÁC
 const YOUR_GITHUB_USER = 'phucnguyen987'; 
 const YOUR_REPO_NAME = 'Phonk-web';
 
 async function autoLoadFromGitHub() {
-    status.innerText = "ĐANG LOAD NHẠC...";
+    statusLabel.innerText = "ĐANG LOAD NHẠC...";
     try {
-        const repoUrl = `https://api.github.com/repos/${YOUR_NAME}/${YOUR_REPO_NAME}/contents/music`;
+        // FIX LỖI: Thay YOUR_NAME bằng YOUR_GITHUB_USER cho đúng với khai báo ở trên
+        const repoUrl = `https://api.github.com/repos/${YOUR_GITHUB_USER}/${YOUR_REPO_NAME}/contents/music`;
         
         const response = await fetch(repoUrl);
-        if (!response.ok) throw new Error();
+        
+        if (!response.ok) {
+            throw new Error("Không thể kết nối đến GitHub API");
+        }
         
         const data = await response.json();
         
-        // Tự động lấy các file có đuôi .mp3
+        // Lọc các file nhạc .mp3
         playlist = data
             .filter(file => file.name.toLowerCase().endsWith('.mp3'))
             .map(file => ({
@@ -31,11 +34,17 @@ async function autoLoadFromGitHub() {
                 download_url: file.download_url
             }));
             
+        if (playlist.length === 0) {
+            statusLabel.innerText = "❌ Không tìm thấy file .mp3 nào trong thư mục music!";
+            return;
+        }
+
         renderPlaylist(playlist);
-        status.innerText = `✅ ĐÃ LOAD XONG: ${playlist.length} bài!`;
+        statusLabel.innerText = `✅ ĐÃ LOAD XONG: ${playlist.length} bài!`;
     } catch (err) {
-        status.innerText = "❌ Lỗi: Kiểm tra lại tên User hoặc Repo!";
-        console.error(err);
+        // Hiện lỗi cụ thể ra màn hình như trong ảnh của bạn
+        statusLabel.innerHTML = `<span style="color: red;">❌ Lỗi: Kiểm tra lại tên User hoặc Repo!</span>`;
+        console.error("Chi tiết lỗi:", err);
     }
 }
 
@@ -44,8 +53,17 @@ function renderPlaylist(list) {
     list.forEach((file, index) => {
         const div = document.createElement('div');
         div.className = 'song-item';
+        // Thêm thuộc tính tabindex để hỗ trợ Remote TV Samsung có thể Focus
+        div.setAttribute('tabindex', '0'); 
         div.innerText = `${index + 1}. ${file.name.replace('.mp3', '')}`;
+        
         div.onclick = () => selectSong(div, file.download_url);
+        
+        // Hỗ trợ ấn nút OK/Enter trên Remote TV
+        div.onkeydown = (e) => {
+            if (e.key === "Enter") selectSong(div, file.download_url);
+        };
+
         playlistDiv.appendChild(div);
     });
 }
@@ -53,15 +71,20 @@ function renderPlaylist(list) {
 function selectSong(element, url) {
     document.querySelectorAll('.song-item').forEach(i => i.classList.remove('active'));
     element.classList.add('active');
+    
     selectedUrl = url;
     audio.src = url;
-    audio.play();
+    audio.play().catch(e => console.log("Trình duyệt chặn tự động phát:", e));
+    
     playBtn.innerText = "TẠM DỪNG";
-    status.innerText = "🔥ĐANG PHÁT BÀI: " + element.innerText;
+    statusLabel.innerText = "🔥 ĐANG PHÁT: " + element.innerText.split('. ')[1];
 }
 
 function handlePlay() {
-    if (!selectedUrl) return alert("Chọn nhạc đã bro!");
+    if (!selectedUrl) {
+        alert("Chọn nhạc đã bro!");
+        return;
+    }
     if (audio.paused) {
         audio.play();
         playBtn.innerText = "TẠM DỪNG";
@@ -75,6 +98,7 @@ function handleLoop() {
     isLooping = !isLooping;
     audio.loop = isLooping;
     loopBtn.innerText = isLooping ? "LẶP: BẬT" : "LẶP: TẮT";
+    loopBtn.style.color = isLooping ? "#00ff00" : "#fff";
 }
 
 function filterSongs() {
@@ -85,19 +109,25 @@ function filterSongs() {
     });
 }
 
+// Hàm này được gọi từ nút "VÀO HỆ THỐNG" ở file HTML
 function startApp() {
-    document.getElementById('intro-page').style.display = 'none';
+    // Ẩn trang intro đã được xử lý ở file HTML (startAppFixed)
+    // Ở đây chỉ tập trung vào việc load dữ liệu
     autoLoadFromGitHub();
 }
 
+// Tự động chuyển bài khi hết nhạc
 audio.onended = function() {
     if (!isLooping) {
-        let items = document.querySelectorAll('.song-item');
-        let currentIndex = -1;
-        items.forEach((item, index) => {
-            if (item.classList.contains('active')) currentIndex = index;
-        });
-        let nextIndex = (currentIndex + 1) % items.length;
-        items[nextIndex].click();
+        let items = Array.from(document.querySelectorAll('.song-item'));
+        let currentIndex = items.findIndex(item => item.classList.contains('active'));
+        
+        if (currentIndex !== -1 && currentIndex < items.length - 1) {
+            let nextIndex = currentIndex + 1;
+            items[nextIndex].click();
+            // Tự động cuộn tới bài đang phát nếu danh sách dài
+            items[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
 };
+    
